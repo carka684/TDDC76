@@ -2,6 +2,7 @@
  * Expression_Tree.cc    2012-10-05
  */
 #include "Expression_Tree.h"
+#include "Expression_error.h"
 #include <string>
 #include <sstream>
 #include <cctype>
@@ -173,15 +174,11 @@ string Power::str() const
 Assign::Assign(Expression_Tree* newLeftNode, Expression_Tree* newRightNode)
 	: Binary_Operator(newLeftNode, newRightNode)
 {
-	if(isalpha(leftNode->str()[0]))
+	if(not (isalpha(leftNode->str()[0]) and leftNode->str().size()==1 ))
 	{
-		cout << "TEST Assign's leftnode is a variable" << endl;
+		throw expression_error("Måste vara en variabel (ett tecken) till vänster om =");
 	}
-	else
-	{
-		//Ska ge fel! FIXA SENARE!
-		cout << "ERROR: Assign's leftnode is not a variable" << endl;
-	}
+
 }
 
 
