@@ -42,6 +42,18 @@ void Binary_Operator::print(ostream& os, int depth) const
 	leftNode->print(os,depth+2);
 }
 
+string Binary_Operator::get_infix() const
+{
+	string infix = "(";
+	infix = infix + leftNode->get_infix();	
+	infix = infix + str();
+	infix = infix + rightNode->get_infix();
+	infix = infix + ")";
+	return infix; 
+}
+
+
+
 string Binary_Operator::get_postfix() const
 {
 	return (leftNode->get_postfix() + " " + rightNode->get_postfix() + " " + str());
@@ -54,6 +66,11 @@ void Operand::print(ostream& os, int depth) const
 	string valueString = str();
 	os << setw(depth+1+valueString.size()) << valueString << endl;
 }
+string Operand::get_infix() const
+{
+	return str();
+}
+
 
 string Operand::get_postfix() const
 {
@@ -170,7 +187,6 @@ string Power::str() const
 
 // ----------------- Assign ------------------
 
-// Måste vara en variabel i leftNode, annars är tilldelningen fel!
 Assign::Assign(Expression_Tree* newLeftNode, Expression_Tree* newRightNode)
 	: Binary_Operator(newLeftNode, newRightNode)
 {
@@ -192,6 +208,7 @@ double Assign::evaluate()
 	Variable* leftVariable = dynamic_cast<Variable*>(leftNode);
 	double rightNodeValue = rightNode->evaluate(); 
 	leftVariable->set_value(rightNodeValue);
+	
 	return rightNodeValue;
 }
 
@@ -253,8 +270,9 @@ string Real::str() const
 
 // ----------------- Variable ------------------
 
-Variable::Variable(string newVariableName, int newValue)
+Variable::Variable(string newVariableName, Variable_Table* variable_table, int newValue)
 {
+	variable_table_ref = variable_table;
 	value = newValue;
 	variableName = newVariableName;
 }
@@ -263,10 +281,19 @@ Expression_Tree* Variable::clone() const
 {
 	return new Variable(*this);
 }
-		
+
+// CHECK BORDE LIGGA I VARIABLE_TABLE: FRÅGA JONAS		
 double Variable::evaluate()
 {
-	return value;
+	if(variable_table_ref->find(variableName))
+	{
+		return variable_table_ref->get_value(variableName);
+	}
+	else 
+	{
+		throw expression_error("Variabel i högerledet är ej definierad");
+	}
+	
 }
 
 string Variable::str() const
@@ -279,7 +306,17 @@ double Variable::get_value() const
 	return value;
 }
 
+// CHECK BORDE LIGGA I VARIABLE_TABLE: FRÅGA JONAS
 void Variable::set_value(double newValue)
 {
 	value = newValue;
+	
+	if(variable_table_ref->find(variableName))
+	{
+		variable_table_ref->set_value(variableName,value);
+	}
+	else 
+	{
+		variable_table_ref->insert(variableName,value);
+	}
 }

@@ -3,6 +3,7 @@
  */
 #ifndef EXPRESSION_H
 #define EXPRESSION_H
+#include "../Variable_Table/Variable_Table.h"
 #include <iosfwd>
 #include <stdexcept>
 #include <string>
@@ -25,6 +26,7 @@ public:
    Expression(class Expression_Tree* newTree = 0);
 
    double      evaluate() const;
+   std::string get_infix() const;
    std::string get_postfix() const;
    bool        empty() const;
    void        print_tree(std::ostream&) const;
@@ -46,6 +48,6 @@ void swap(Expression&, Expression&);
  * make_expression: Hjälpfunktion för att skapa ett Expression-objekt, givet
  * ett infixuttryck i form av en sträng.
  */
-Expression make_expression(const std::string& infix);
+Expression make_expression(const std::string& infix,Variable_Table* variable_table);
 
 #endif

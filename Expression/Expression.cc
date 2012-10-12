@@ -4,6 +4,7 @@
 #include "Expression.h"
 #include "Expression_Tree.h"
 #include "Expression_error.h"
+//#include "Variable_Table.h"
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
@@ -24,16 +25,48 @@ Expression::Expression(class Expression_Tree* newTree)
 	topNode = newTree;
 }
 
-/*
+/**
+ * get_infix()
+ */
+string Expression::get_infix() const
+{
+	string infix = topNode->get_infix();
+	bool onlyNumbers = true;
+	for(unsigned int i = 0; i < infix.size(); ++i)
+	{
+		if(!isdigit(infix[i]))
+			onlyNumbers = false;
+	}
+	
+	if(onlyNumbers == false)
+	{
+		size_t found;
+		infix.erase(0,1);
+		infix.erase(infix.size() - 1, 1);
+		found=infix.find("=");
+		if (found!=string::npos)
+		{
+			infix.erase(found + 1,1);
+			infix.erase(infix.size() - 1, 1);
+		}
+	}
+	
+	return infix;
+}
+
+/**
  * evaluate()
  */
 double Expression::evaluate() const
 {
-
-   return topNode->evaluate();
+	if(topNode == nullptr)
+	{
+		throw expression_error("Finns inget uttryck");	
+	}
+	return topNode->evaluate();
 }
 
-/*
+/**
  * get_postfix()
  */
 std::string Expression::get_postfix() const
@@ -41,7 +74,7 @@ std::string Expression::get_postfix() const
    return topNode->get_postfix();
 }
 
-/*
+/**
  * empty()
  */
 bool Expression::empty() const
@@ -49,14 +82,15 @@ bool Expression::empty() const
   return (topNode == nullptr);
 }
 
-/*
+/**
  * print_tree()
  */
 void Expression::print_tree(std::ostream& os) const
 {
    topNode->print(os);
 }
-/*
+
+/**
  * get_topNode()
  */
 Expression_Tree* Expression::get_topNode() const
@@ -72,7 +106,7 @@ void Expression::set_topNode(Expression_Tree* newTopNode)
 
 
 
-/*
+/**
  * swap(other)
  */
 void Expression::swap(Expression& other)
@@ -80,12 +114,10 @@ void Expression::swap(Expression& other)
    Expression_Tree* temp = (other.topNode)->clone();
    other.topNode = topNode;
    topNode = temp;
-   
-   
-   
+
 }
 
-/*
+/**
  * swap(x, y)
  */
 void swap(Expression& other1, Expression& other2)
@@ -354,7 +386,7 @@ namespace
    // make_expression_tree() tar en postfixsträng och returnerar ett motsvarande 
    // länkat träd av Expression_Tree-noder. Tänk på minnesläckage...
 
-   Expression_Tree* make_expression_tree(const std::string& postfix)
+   Expression_Tree* make_expression_tree(const std::string& postfix, Variable_Table* variable_table)
    {
       using std::stack;
       using std::string;
@@ -421,7 +453,7 @@ namespace
 	 }
 	 else if (is_identifier(token))
 	 {
-	    tree_stack.push(new Variable(token));
+	    tree_stack.push(new Variable(token,variable_table));
 	 }
 	 else
 	 {
@@ -459,7 +491,7 @@ namespace
 /*
  * make_expression()
  */
-Expression make_expression(const string& infix)
+Expression make_expression(const string& infix, Variable_Table* variable_table)
 {
-   return Expression(make_expression_tree(make_postfix(infix)));
+   return Expression(make_expression_tree(make_postfix(infix),variable_table));
 }

@@ -4,7 +4,9 @@
 #ifndef CALCULATOR_H
 #define CALCULATOR_H
 #include "Expression.h"
+#include "../Variable_Table/Variable_Table.h"
 #include <iosfwd>
+#include <vector>
 
 /**
  * Calculator: klass för att läsa in, lagra och bearbeta enkla aritmetiska
@@ -18,9 +20,9 @@
 class Calculator
 {
 public:
-   Calculator() = default;
+   Calculator();
    Calculator(const Calculator&) = delete;
-   ~Calculator() = default;
+   ~Calculator();
    Calculator& operator=(const Calculator&) = delete;
    // Flyttkonstruktor och flyttilldening genereras inte.
 
@@ -40,6 +42,14 @@ private:
    void execute_command();
 
    void read_expression(std::istream&);
+   std::vector<Expression> expression_vector;
+   Variable_Table* variable_table = new Variable_Table;
+   int position = 0;
+   int current_position_ = 0;
+   
+   void print_variables() const;
+   void erase_expression();
+   void erase_expression(int pos);
 };
 
 #endif

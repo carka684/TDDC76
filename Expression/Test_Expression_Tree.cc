@@ -18,7 +18,7 @@ int main()
 	Integer* valueThree = new Integer(-6);
 	Real* valueFour = new Real(3.14);
 	Integer* valueFive = new Integer(2);
-	Variable* variable = new Variable("FISK",7);
+	Variable* variable = new Variable("x",7);
 	Power* power = new Power(valueFour, valueFive);
 	Plus* plus = new Plus(valueThree, power);
 	Divide* divide = new Divide(valueTwo, plus);
@@ -47,5 +47,7 @@ int main()
 	
 	//TEST Variable/Assign
 	cout << "TEST Variable/Assign, print variable.get_value(): " << variable->str() << " " << variable->get_value() << endl;
-	
+
+	//TEST get_infix
+	cout << "get_infix: " << assign.get_infix() << endl;
 }

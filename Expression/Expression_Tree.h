@@ -6,6 +6,7 @@
 #include <iosfwd>
 #include <string>
 #include <stdexcept>
+#include "../Variable_Table/Variable_Table.h"
 
 /*
  * expression_tree_error: Kastas om fel uppstår i en Expression_Tree-operation.
@@ -26,10 +27,15 @@ class Expression_Tree
 public:
    virtual ~Expression_Tree() {}
    virtual double           evaluate() = 0;
+   
+   /**
+    * Returnerar trädets infix ostädat från onödiga paranteser.
+    */
+   virtual std::string	    get_infix() const = 0;
    virtual std::string      get_postfix() const = 0;
-   virtual std::string      str() const = 0;
    virtual void             print(std::ostream&, int depth=0) const = 0;
    virtual Expression_Tree* clone() const = 0;
+   virtual std::string      str() const = 0;
   
 };
 
@@ -46,6 +52,7 @@ class Binary_Operator : public Expression_Tree
 	Expression_Tree* rightNode;
 	
 	void print(std::ostream& os, int depth=0) const;
+	std::string get_infix() const;
 	std::string get_postfix() const;
 };
 
@@ -55,6 +62,7 @@ class Binary_Operator : public Expression_Tree
 class Operand : public Expression_Tree
 {
 	void print(std::ostream& os, int depth) const;
+	std::string get_infix() const;
 	std::string get_postfix() const;
 };
 
@@ -69,6 +77,8 @@ class Plus : public Binary_Operator
 	~Plus() = default;
 	Expression_Tree* clone() const;
 	double evaluate();
+	
+	private:
 	std::string str() const;
 };
 
@@ -82,6 +92,8 @@ class Minus : public Binary_Operator
 	~Minus() = default;
 	Expression_Tree* clone() const;
 	double evaluate();
+	
+	private:
 	std::string str() const;
 
 };
@@ -97,6 +109,8 @@ class Times : public Binary_Operator
 	~Times() = default;
 	Expression_Tree* clone() const;
 	double evaluate();
+	
+	private:
 	std::string str() const;
 };
 
@@ -110,6 +124,8 @@ class Divide : public Binary_Operator
 	~Divide() = default;
 	Expression_Tree* clone() const;
 	double evaluate();
+	
+	private:
 	std::string str() const;
 
 };
@@ -124,6 +140,8 @@ class Power: public Binary_Operator
 	~Power() = default;
 	Expression_Tree* clone() const;
 	double evaluate();
+	
+	private:
 	std::string str() const;
 };
 
@@ -137,6 +155,8 @@ class Assign : public Binary_Operator
 	~Assign() = default;
 	Expression_Tree* clone() const;
 	double evaluate();
+	
+	private:
 	std::string str() const;
 };
 
@@ -151,9 +171,9 @@ class Integer : public Operand
 	~Integer() = default;
 	Expression_Tree* clone() const;
 	double evaluate();
-	std::string str() const;
 	
 	private:
+	std::string str() const;
 	int value;
 };
 
@@ -167,9 +187,9 @@ class Real : public Operand
 	~Real() = default;
 	Expression_Tree* clone() const;
 	double evaluate();
-	std::string str() const;
 	
 	private:
+	std::string str() const;
 	double value;
 };
 
@@ -180,18 +200,20 @@ class Real : public Operand
 class Variable : public Operand
 {
 	public:
-	Variable(std::string newVariableName, int newValue = 0);
+	Variable(std::string newVariableName,Variable_Table* variable_table, int newValue = 0);
 	~Variable() = default;
 	Expression_Tree* clone() const;
 	double evaluate();
-	std::string str() const;
-	
 	double get_value() const;
 	void set_value(double newValue);
 	
 	private:
+	std::string str() const;
+	
+	private:
 	double value;
 	std::string variableName;
+	Variable_Table* variable_table_ref;
 };
 
 #endif
